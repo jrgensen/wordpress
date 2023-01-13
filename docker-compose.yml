@@ -1,0 +1,45 @@
+version: '3.4'
+
+volumes:
+  db:
+
+services:
+  web:
+    image: wordpress:6.1-php8.2-apache
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: db_user
+      WORDPRESS_DB_PASSWORD: db_user_password
+      WORDPRESS_DB_NAME: wp
+      #WORDPRESS_DEBUG: 1
+    volumes:
+    - ./wordpress:/var/www/html
+    ports:
+    - 8080:80
+    depends_on:
+    - db
+
+  db:
+    image: mariadb:10.10-jammy
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: wp
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_user_password
+    volumes:
+    - db:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: db_user
+      PMA_PASSWORD: db_user_password
+      PMA_ARBITRARY: 1
+    ports:
+    - 8081:80
+    depends_on:
+    - db
